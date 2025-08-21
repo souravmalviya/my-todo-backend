@@ -1,0 +1,1 @@
+ill  first analyse the model schema for my mongoDB

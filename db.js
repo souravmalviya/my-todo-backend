@@ -1,26 +1,24 @@
-const mongoose = require('mongoose');
-const Schema= mongoose.Schema;
-const ObjectId= mongoose.ObjectId;
+const mongoose = require("mongoose");
 
-const Users=  new Schema( {
-    email: {type: String, unique: true },
-    password: String,
-    name: String
+const Schema = mongoose.Schema;
+const ObjectId = Schema.ObjectId;
 
-})
+const User = new Schema({
+  name: String,
+  email: { type: String, unique: true },
+  password: String
+});
 
-const todo=  new Schema( {
-    title: String,
-    done: Boolean,
-    userId: ObjectId
-})
+const Todo = new Schema({
+  userId: ObjectId,
+  title: String,
+  done: Boolean
+});
 
-//
-const userModel= mongoose.model('users', Users) //'' ke andar means wheere u want to put the data 
-const TodoModel= mongoose.model('todos', todo)
-//exporing the fle to the next page for backenf 
+const UserModel = mongoose.model('users', User);
+const TodoModel = mongoose.model('todos', Todo);
+
 module.exports = {
-    userModel: userModel,
-    TodoModel: TodoModel
+  UserModel,
+  TodoModel
 }
-//exporing object where 

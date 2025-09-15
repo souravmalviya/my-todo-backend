@@ -1,68 +1,85 @@
-//create a node backend server and write the endponts 
 const express = require("express");
-const jwt= require("jsonwebtoken");
-const JWT_SECRET="souravmalviya23";
-const mongoose= require("mongoose");
-mongoose.connect("mongodb+srv://admin:Admin123456789@cluster0.mnlum0e.mongodb.net/todo-sourav-2323")
+const { UserModel, TodoModel } = require("./db");
+const { auth, JWT_SECRET } = require("./auth");
+const jwt = require("jsonwebtoken");
+const mongoose = require("mongoose");
 
-const { userModel, TodoModel } = require("./db"); //exported the both schema form 1 file to another 
+mongoose.connect("")
+
 const app = express();
 app.use(express.json());
-//will be creating a middlewear of Authentication 
 
-//signup DONE
-app.post("/signup", async  (req, res) => {
+app.post("/signup", async function (req, res) {
     const email = req.body.email;
     const password = req.body.password;
     const name = req.body.name;
 
-     await userModel.create({ // u can await this promise 
+    await UserModel.create({
         email: email,
         password: password,
         name: name
     });
 
     res.json({
-        message: "you are logged in" //so basically if i will not get the data form the db then it will be giving me seedha this ans before getting the data 
+        message: "You are signed up"
     })
 });
 
-//sign-in
-app.post("/signin", async (req, res) => {
+
+app.post("/signin", async function (req, res) {
     const email = req.body.email;
     const password = req.body.password;
-    //user will be first verifyed that wehther the user is signed up or not then only enrtyr
 
-    const user = await userModel.findOne({ // here it is an promise cozz it will get into the db and it will awiat 
-    email: email,
-    password: password
-}); // if this is true then i will return them a tocken  i will generate a token 
-    if (user){
-        const token= jwt.sign({
-            id: user._id
-        });
+    const response = await UserModel.findOne({
+        email: email,
+        password: password,
+    });
+
+    if (response) {
+        const token = jwt.sign({
+            id: response._id.toString()
+        }, JWT_SECRET);
+
         res.json({
-            token: token
+            token
         })
-
-    }else{
+    } else {
         res.status(403).json({
-            message: "incorrect credddd"
+            message: "Incorrect creds"
         })
     }
-
 });
 
-//appending the Todo  HERE ONLY ENTRY IF AUTHENTICATED
-app.post("/todo", (req, res) => {
 
+app.post("/todo", auth, async function (req, res) {
+    const userId = req.userId;
+    const title = req.body.title;
+    const done = req.body.done;
+
+    await TodoModel.create({
+        userId,
+        title,
+        done
+    });
+
+    res.json({
+        message: "Todo created"
+    })
 });
 
-//get all the todos here 
-app.get("/todos", (req, res) => {
 
+app.get("/todos", auth, async function (req, res) {
+    const userId = req.userId;
+
+    const todos = await TodoModel.find({
+        userId
+    });
+
+    res.json({
+        todos
+    })
 });
 
 app.listen(3000, () => {
-    console.log("Your app is Runnig on Port 3000");
+    console.log("app is Running")
 });

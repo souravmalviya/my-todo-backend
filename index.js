@@ -4,6 +4,7 @@ const { UserModel, TodoModel } = require("./db");
 const { auth, JWT_SECRET } = require("./auth");
 const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
+const {z, string}= require("zod");
 
 mongoose.connect("")
 
@@ -11,6 +12,22 @@ const app = express();
 app.use(express.json());
 
 app.post("/signup", async function (req, res) {
+    //if i want to do som input cheecks then i will use the zod obejct 
+    const requireBody= z.object({
+        email: z.string().min(3).max(10).email(),
+        password: z.string().min(3).max(10),
+        name: z.string().min(3).max(10)
+        //assignments how i will check the emial that contain one uppercase and one lowercase kind os things 
+    })
+    //const parsedBody= requireBody.parse(req.body);
+    const parsedatadatawithsuccess= requireBody.safeParse(req.body); // returns 2 things 
+    if(!parsedatadatawithsuccess.success){
+        res.json({
+            message: "incorrect formate",
+            error: parsedatadatawithsuccess.error
+        })
+    }
+
     const email = req.body.email;
     const password = req.body.password;
     const name = req.body.name;

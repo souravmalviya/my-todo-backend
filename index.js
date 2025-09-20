@@ -5,7 +5,7 @@ const { auth, JWT_SECRET } = require("./auth");
 const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
 
-mongoose.connect("Add Your Connection Mongoose")
+mongoose.connect("")
 
 const app = express();
 app.use(express.json());
@@ -18,6 +18,7 @@ app.post("/signup", async function (req, res) {
     const hashedpassword = await bcrypt.hash(password,5);
     console.log(hashedpassword)
 
+    let errorthrown= false;
    try{
     await UserModel.create({
         email: email,
@@ -28,11 +29,17 @@ app.post("/signup", async function (req, res) {
         res.json({
             message:"User Already Exist Try Signing Up"
         })
+        errorthrown= true;
+
     }
 
-    res.json({
+    if(!errorthrown){
+        res.json({
         message: "You are signed up"
     })
+    }
+
+    
 });
 
 

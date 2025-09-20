@@ -1,4 +1,5 @@
 const express = require("express");
+const bcrypt= require("bcrypt");
 const { UserModel, TodoModel } = require("./db");
 const { auth, JWT_SECRET } = require("./auth");
 const jwt = require("jsonwebtoken");
@@ -14,11 +15,20 @@ app.post("/signup", async function (req, res) {
     const password = req.body.password;
     const name = req.body.name;
 
+    const hashedpassword = await bcrypt.hash(password,5);
+    console.log(hashedpassword)
+
+   try{
     await UserModel.create({
         email: email,
-        password: password,
+        password: hashedpassword,
         name: name
     });
+    }catch{
+        res.json({
+            message:"Something went wrong"
+        })
+    }
 
     res.json({
         message: "You are signed up"
@@ -27,15 +37,24 @@ app.post("/signup", async function (req, res) {
 
 
 app.post("/signin", async function (req, res) {
+    //user sign in we need to get the salt 
     const email = req.body.email;
     const password = req.body.password;
 
     const response = await UserModel.findOne({
         email: email,
-        password: password,
+       // password: password,
     });
+    if (!response){
+        res.status(403).json({
+            message: "user dont exist in our DB "
 
-    if (response) {
+        })
+    }
+
+    const passwordMatch = await bcrypt.compare(password, response.password) // im comparing the password 
+
+    if (passwordMatch) {
         const token = jwt.sign({
             id: response._id.toString()
         }, JWT_SECRET);
@@ -43,6 +62,7 @@ app.post("/signin", async function (req, res) {
         res.json({
             token
         })
+
     } else {
         res.status(403).json({
             message: "Incorrect creds"
@@ -52,7 +72,7 @@ app.post("/signin", async function (req, res) {
 
 
 app.post("/todo", auth, async function (req, res) {
-    const userId = req.userId;
+    const userId = req.userId; //user id contains the token 
     const title = req.body.title;
     const done = req.body.done;
 

@@ -12,7 +12,7 @@ function auth(req, res, next) {
 
     try {
         const response = jwt.verify(token, JWT_SECRET);
-C
+
         if (response) {
             req.userId = response.id;
             next();

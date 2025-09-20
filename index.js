@@ -5,7 +5,7 @@ const { auth, JWT_SECRET } = require("./auth");
 const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
 
-mongoose.connect("")
+mongoose.connect("Add Your Connection Mongoose")
 
 const app = express();
 app.use(express.json());
@@ -26,7 +26,7 @@ app.post("/signup", async function (req, res) {
     });
     }catch{
         res.json({
-            message:"Something went wrong"
+            message:"User Already Exist Try Signing Up"
         })
     }
 
@@ -45,6 +45,7 @@ app.post("/signin", async function (req, res) {
         email: email,
        // password: password,
     });
+    
     if (!response){
         res.status(403).json({
             message: "user dont exist in our DB "
